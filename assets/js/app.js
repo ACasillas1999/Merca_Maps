@@ -325,6 +325,10 @@ async function handleCreateLocation(e) {
     alert('Agrega una latitud y longitud validas.');
     return;
   }
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    alert('Formato de coordenadas inválido. Usa grados decimales, ej: 20.6627 y -103.3554');
+    return;
+  }
   try {
     form.querySelector('button[type="submit"]').disabled = true;
     await createLocation({ name, type, lat, lng, notes });
@@ -336,7 +340,7 @@ async function handleCreateLocation(e) {
     await loadLocations();
   } catch (err) {
     console.error(err);
-    alert('No se pudo guardar la ubicacion.');
+    alert(err.message || 'No se pudo guardar la ubicacion.');
   } finally {
     form.querySelector('button[type="submit"]').disabled = false;
   }

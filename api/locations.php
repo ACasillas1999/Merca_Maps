@@ -26,6 +26,10 @@ function list_locations(mysqli $conn): void
     $result = $conn->query("SELECT id, name, type, lat, lng, notes, created_at FROM locations ORDER BY created_at DESC");
     $rows = [];
     while ($row = $result->fetch_assoc()) {
+        if (!is_valid_coord($row['lat'], $row['lng'])) {
+            // Saltar registros corruptos para no romper el mapa
+            continue;
+        }
         $row['createdAt'] = strtotime($row['created_at']) * 1000;
         unset($row['created_at']);
         $rows[] = $row;
@@ -85,6 +89,9 @@ function create_location(mysqli $conn): void
     if ($name === '' || $type === '' || !is_numeric($lat) || !is_numeric($lng)) {
         json_error(400, 'Datos incompletos');
     }
+    if (!is_valid_coord($lat, $lng)) {
+        json_error(400, 'Latitud/longitud fuera de rango');
+    }
 
     $stmt = $conn->prepare('INSERT INTO locations (name, type, lat, lng, notes) VALUES (?, ?, ?, ?, ?)');
     $stmt->bind_param('ssdds', $name, $type, $lat, $lng, $notes);
@@ -104,6 +111,14 @@ function create_location(mysqli $conn): void
             'createdAt' => time() * 1000,
         ],
     ]);
+}
+
+function is_valid_coord($lat, $lng): bool
+{
+    return is_numeric($lat) && is_numeric($lng) &&
+        (float)$lat <= 90 && (float)$lat >= -90 &&
+        (float)$lng <= 180 && (float)$lng >= -180 &&
+        is_finite((float)$lat) && is_finite((float)$lng);
 }
 
 function delete_location(mysqli $conn): void
