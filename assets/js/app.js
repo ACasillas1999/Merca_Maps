@@ -26,6 +26,7 @@ import {
   updateNavOrigins,
   updateNavSummary,
   toggleNavCard,
+  openNavCard,
   openModal,
   closeModal,
   openRouteModal,
@@ -93,13 +94,12 @@ function bindEvents() {
   const routeModalClose = document.getElementById('route-modal-close');
   const routeModalCancel = document.getElementById('route-modal-cancel');
   const btnRouteFromCurrent = document.getElementById('btn-route-from-current');
-  const btnRouteFromOrigin = document.getElementById('btn-route-from-origin');
   const btnClearNav = document.getElementById('btn-clear-nav');
-  const navOriginSelect = document.getElementById('nav-origin');
-  const navOriginText = document.getElementById('nav-origin-text');
   const navToggle = document.getElementById('nav-toggle');
   const trafficToggle = document.getElementById('toggle-traffic');
   const searchInput = document.getElementById('locations-search');
+  const btnRouteFromSearch = document.getElementById('btn-route-from-search');
+  const btnOpenGmaps = document.getElementById('btn-open-gmaps');
   const adminUsersBtn = document.getElementById('open-users-admin');
   const usersModalBackdrop = document.getElementById('users-modal-backdrop');
   const usersModalClose = document.getElementById('users-modal-close');
@@ -126,26 +126,10 @@ function bindEvents() {
   });
 
   btnRouteFromCurrent?.addEventListener('click', routeFromCurrentPosition);
-  btnRouteFromOrigin?.addEventListener('click', routeFromSelectedOrigin);
+  btnRouteFromSearch?.addEventListener('click', routeFromCurrentPosition);
+  btnOpenGmaps?.addEventListener('click', openInGoogleMaps);
   btnClearNav?.addEventListener('click', clearNavRoute);
-
-  navOriginSelect?.addEventListener('change', (e) => {
-    if (e.target.value) {
-      if (navOriginText) navOriginText.value = '';
-    }
-    state.navOriginId = e.target.value;
-    state.navOriginManual = '';
-    updateNavSummary(state);
-  });
-  navOriginText?.addEventListener('input', (e) => {
-    if (e.target.value) {
-      if (navOriginSelect) navOriginSelect.value = '';
-    }
-    state.navOriginManual = e.target.value.trim();
-    state.navOriginId = '';
-    updateNavSummary(state);
-  });
-  navToggle?.addEventListener('click', toggleNavCard);
+    navToggle?.addEventListener('click', toggleNavCard);
   trafficToggle?.addEventListener('change', (e) => {
     state.trafficOn = e.target.checked;
     if (state.navRouteData && state.navDestination) {
@@ -204,6 +188,7 @@ function bindEvents() {
           .setLngLat([loc.lng, loc.lat])
           .setHTML(`<strong>${loc.name}</strong><br>${getTypeLabel(loc.type, typeLabel)}<br>${loc.notes || ''}`)
           .addTo(mapState.map);
+        closeDrawer();
       }
     }
     if (e.target.matches('[data-action="nav-dest"]')) {
@@ -215,6 +200,8 @@ function bindEvents() {
         if (status) status.textContent = `Destino: ${loc.name}. Elige origen o usa "Desde mi ubicacion".`;
         drawNavPoint(mapState, loc.lng, loc.lat, 'destino');
         updateNavSummary(state);
+        closeDrawer();
+        openNavCard();
       }
     }
   });
@@ -516,18 +503,27 @@ function applyNavRoute(routeData, origin, destination) {
 
 function clearNavRoute() {
   clearNavLayers(mapState);
-  state.navDestination = null;
-  state.navOriginId = '';
-  state.navOriginManual = '';
-  state.navRouteData = null;
-  const status = document.getElementById('nav-status');
+    state.navDestination = null;
+    state.navOriginId = '';
+    state.navOriginManual = '';
+    state.navRouteData = null;
+    const status = document.getElementById('nav-status');
   if (status) status.textContent = 'Selecciona una direccion para trazar.';
   mapState.geocoder?.clear();
-  const originSelect = document.getElementById('nav-origin');
-  if (originSelect) originSelect.value = '';
-  const originText = document.getElementById('nav-origin-text');
-  if (originText) originText.value = '';
-  updateNavSummary(state);
+    const originSelect = document.getElementById('nav-origin');
+    if (originSelect) originSelect.value = '';
+    updateNavSummary(state);
+  }
+
+function openInGoogleMaps() {
+  const dest = state.navDestination;
+  const origin = state.navRouteData?.origin;
+  if (!origin || !dest) {
+    alert('Traza una ruta primero para abrirla en Google Maps.');
+    return;
+  }
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`;
+  window.open(url, '_blank');
 }
 
 function setOriginFromCoords(origin, label) {

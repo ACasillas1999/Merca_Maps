@@ -16,8 +16,8 @@
       <p class="lede">Marca y clasifica ubicaciones del Grupo Ascencio.</p>
     </div>
     <div class="hero__actions">
-      <button id="open-users-admin" class="ghost" hidden>Usuarios (admin)</button>
-      <button id="logout-btn" class="ghost" hidden>Salir</button>
+      <button id="open-users-admin" class="ghost btn-icon btn-users" hidden>Usuarios (admin)</button>
+      <button id="logout-btn" class="ghost btn-icon btn-logout" hidden>Salir</button>
       <div class="metrics" id="metric-types"></div>
       <div class="metric">
         <p class="label">Ubicaciones</p>
@@ -44,7 +44,7 @@
     </section>
 
     <section class="map-panel">
-      <button type="button" class="drawer-toggle" id="menu-toggle">Menú</button>
+      <button type="button" class="drawer-toggle btn-icon btn-menu" id="menu-toggle">Menú</button>
       <div id="drawer-overlay" class="drawer-overlay" hidden></div>
       <div class="nav-search-card is-collapsed">
         <div class="nav-search-head">
@@ -57,25 +57,14 @@
         </div>
         <div class="nav-search-body">
           <div id="geocoder" class="geocoder"></div>
-          <div class="grid-2">
-            <label class="field">
-              <span>Origen sugerido</span>
-              <select id="nav-origin">
-                <option value="">Elige una ubicacion guardada</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Origen manual</span>
-              <input type="text" id="nav-origin-text" placeholder="Escribe direccion">
-            </label>
-          </div>
           <div class="nav-actions">
-            <button type="button" class="ghost small" id="btn-route-from-current">Desde mi ubicacion</button>
-            <button type="button" class="ghost small" id="btn-route-from-origin">Trazar desde origen</button>
-            <button type="button" class="ghost small" id="btn-clear-nav">Limpiar</button>
+            <button type="button" class="ghost small icon-square" id="btn-route-from-search" title="Trazar ruta">➤ Ruta</button>
+            <button type="button" class="ghost small icon-square" id="btn-route-from-current" title="Mi ubicación">📍 Origen</button>
+            <button type="button" class="ghost small icon-square" id="btn-open-gmaps" title="Ver en Google Maps">🗺️ Maps</button>
+            <button type="button" class="ghost small icon-square" id="btn-clear-nav" title="Limpiar">✕ Limpiar</button>
           </div>
-          <label class="field inline-traffic">
-            <span>Capas</span>
+            <label class="field inline-traffic">
+              <span>Capas</span>
             <label class="traffic-toggle"><input type="checkbox" id="toggle-traffic"> Mostrar trafico</label>
           </label>
           <p class="muted nav-status" id="nav-status">Selecciona una direccion para trazar.</p>
@@ -98,14 +87,15 @@
       <form id="location-form" class="stack modal__form">
         <label class="field">
           <span>Nombre</span>
-          <input type="text" id="loc-name" placeholder="Sucursal Monterrey" required>
+          <input type="text" id="loc-name" placeholder="Sucursal" required>
         </label>
         <label class="field">
           <span>Tipo</span>
           <select id="loc-type" required>
             <option value="sucursal">Sucursal</option>
             <option value="proveedor">Proveedor</option>
-            <option value="almacen">Almacen</option>
+            <option value="competencia">Competencia</option>
+            <option value="clientes_potenciales">Clientes potenciales</option>
             <option value="otro">Otro</option>
           </select>
         </label>

@@ -24,27 +24,30 @@ export function renderLocationList(state, locations, { typeColor, getTypeKey, ge
   }
   container.innerHTML = locations
     .sort((a, b) => b.createdAt - a.createdAt)
-    .map(
-      (loc) => `
-        <div class="item">
-          <div>
-            <div class="title-row">
-              <span class="pin-icon" style="--color:${typeColor[getTypeKey(loc.type)] || '#38bdf8'}"></span>
-              <strong>${loc.name}</strong>
+    .map((loc) => {
+      const color = typeColor[getTypeKey(loc.type)] || '#38bdf8';
+      return `
+        <div class="item item--compact">
+          <div class="item__main">
+            <div class="item__title">
+              <span class="pin-icon" style="--color:${color}"></span>
+              <div class="item__title-text">
+                <strong>${loc.name}</strong>
+                <div class="route-meta small-text">${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}</div>
+              </div>
             </div>
-            <div class="route-meta">
+            <div class="item__tags">
               <span class="badge ${getTypeKey(loc.type)}"><span class="dot"></span>${getTypeLabel(loc.type)}</span>
-              - ${Number(loc.lat).toFixed(4)}, ${Number(loc.lng).toFixed(4)}
+              ${loc.notes ? `<span class="muted small-text">${loc.notes}</span>` : ''}
             </div>
-            ${loc.notes ? `<p class="muted">${loc.notes}</p>` : ''}
           </div>
-          <div class="chips">
-            <button type="button" class="ghost" data-action="nav-dest" data-id="${loc.id}">Ruta</button>
-            <button type="button" class="ghost" data-action="focus" data-id="${loc.id}">Ver</button>
-            <button type="button" class="ghost" data-action="remove" data-id="${loc.id}">Eliminar</button>
+          <div class="item__actions">
+            <button type="button" class="ghost icon-only white-icon" data-action="nav-dest" data-id="${loc.id}" title="Ruta">➤</button>
+            <button type="button" class="ghost icon-only white-icon" data-action="focus" data-id="${loc.id}" title="Ver">👁</button>
+            ${state.currentUser?.role === 'admin' ? `<button type="button" class="ghost icon-only white-icon" data-action="remove" data-id="${loc.id}" title="Eliminar">✕</button>` : ''}
           </div>
-        </div>`
-    )
+        </div>`;
+    })
     .join('');
 }
 
@@ -197,6 +200,14 @@ export function toggleNavCard() {
   if (toggleBtn) {
     toggleBtn.textContent = card.classList.contains('is-collapsed') ? 'Expandir' : 'Minimizar';
   }
+}
+
+export function openNavCard() {
+  const card = document.querySelector('.nav-search-card');
+  const toggleBtn = document.getElementById('nav-toggle');
+  if (!card) return;
+  card.classList.remove('is-collapsed');
+  if (toggleBtn) toggleBtn.textContent = 'Minimizar';
 }
 
 export function updateNavOrigins(state) {
