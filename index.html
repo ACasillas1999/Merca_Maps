@@ -1,0 +1,169 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Sucursales y Rutas | Grupo Ascencio</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Operaciones en vivo</p>
+      <h1>Mapa de sucursales, proveedores y rutas</h1>
+      <p class="lede">Marca y clasifica ubicaciones del Grupo Ascencio, asigna rutas a tus usuarios y visualiza el recorrido en un solo panel.</p>
+    </div>
+    <div class="hero__actions">
+      <div class="metrics" id="metric-types"></div>
+      <div class="metric">
+        <p class="label">Ubicaciones</p>
+        <p class="value" id="metric-locations">0</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout layout--map-right">
+    <section class="panel panel-left">
+      <div class="panel__header">
+        <div>
+          <h2>Ubicaciones</h2>
+          <p class="muted">Listado al dia de sucursales y proveedores.</p>
+        </div>
+        <button id="open-modal" class="primary">Nueva ubicacion</button>
+      </div>
+      <div class="filters filters--wide" id="filters"></div>
+      <label class="field">
+        <span>Buscar ubicacion</span>
+        <input type="search" id="locations-search" placeholder="Filtrar por nombre o nota">
+      </label>
+      <div id="locations-list" class="list map-list"></div>
+    </section>
+
+    <section class="map-panel">
+      <div class="nav-search-card is-collapsed">
+        <div class="nav-search-head">
+          <div>
+            <strong>Ruta rapida</strong>
+            <p class="muted">Busca una direccion y traza la ruta.</p>
+            <p class="muted nav-summary" id="nav-summary">Origen: -- · Destino: --</p>
+          </div>
+          <button type="button" class="ghost small" id="nav-toggle">Expandir</button>
+        </div>
+        <div class="nav-search-body">
+          <div id="geocoder" class="geocoder"></div>
+          <div class="grid-2">
+            <label class="field">
+              <span>Origen sugerido</span>
+              <select id="nav-origin">
+                <option value="">Elige una ubicacion guardada</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Origen manual</span>
+              <input type="text" id="nav-origin-text" placeholder="Escribe direccion">
+            </label>
+          </div>
+          <div class="nav-actions">
+            <button type="button" class="ghost small" id="btn-route-from-current">Desde mi ubicacion</button>
+            <button type="button" class="ghost small" id="btn-route-from-origin">Trazar desde origen</button>
+            <button type="button" class="ghost small" id="btn-clear-nav">Limpiar</button>
+          </div>
+          <label class="field inline-traffic">
+            <span>Capas</span>
+            <label class="traffic-toggle"><input type="checkbox" id="toggle-traffic"> Mostrar trafico</label>
+          </label>
+          <p class="muted nav-status" id="nav-status">Selecciona una direccion para trazar.</p>
+        </div>
+      </div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <div id="modal-backdrop" class="modal-backdrop" hidden>
+    <div class="modal">
+      <div class="modal__header">
+        <div>
+          <p class="eyebrow">Nueva ubicacion</p>
+          <h3>Registrar punto</h3>
+        </div>
+        <button type="button" id="modal-close" class="ghost">Cerrar</button>
+      </div>
+      <p class="muted">Haz clic en el mapa para precargar latitud y longitud.</p>
+      <form id="location-form" class="stack modal__form">
+        <label class="field">
+          <span>Nombre</span>
+          <input type="text" id="loc-name" placeholder="Sucursal Monterrey" required>
+        </label>
+        <label class="field">
+          <span>Tipo</span>
+          <select id="loc-type" required>
+            <option value="sucursal">Sucursal</option>
+            <option value="proveedor">Proveedor</option>
+            <option value="almacen">Almacen</option>
+            <option value="otro">Otro</option>
+          </select>
+        </label>
+        <div class="grid-2">
+          <label class="field">
+            <span>Latitud</span>
+            <input type="number" step="any" id="loc-lat" placeholder="25.6866" required>
+          </label>
+          <label class="field">
+            <span>Longitud</span>
+            <input type="number" step="any" id="loc-lng" placeholder="-100.3161" required>
+          </label>
+        </div>
+        <label class="field">
+          <span>Descripcion</span>
+          <textarea id="loc-notes" rows="2" placeholder="Contacto, horarios, etc."></textarea>
+        </label>
+        <div class="modal__actions">
+          <button type="button" class="ghost" id="modal-cancel">Cancelar</button>
+          <button type="submit" class="primary">Guardar ubicacion</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="route-modal-backdrop" class="modal-backdrop" hidden>
+    <div class="modal">
+      <div class="modal__header">
+        <div>
+          <p class="eyebrow">Nueva ruta</p>
+          <h3>Crear y asignar</h3>
+        </div>
+        <button type="button" id="route-modal-close" class="ghost">Cerrar</button>
+      </div>
+      <p class="muted">Selecciona las paradas en orden y asigna un responsable.</p>
+      <form id="route-form" class="stack modal__form">
+        <label class="field">
+          <span>Nombre de ruta</span>
+          <input type="text" id="route-name" placeholder="Ruta Norte" required>
+        </label>
+        <label class="field">
+          <span>Asignar a</span>
+          <input type="text" id="route-user" placeholder="Operador / usuario" required>
+        </label>
+        <label class="field">
+          <span>Agregar parada</span>
+          <div class="inline">
+            <select id="route-stop"></select>
+            <button type="button" id="add-stop" class="ghost">Agregar</button>
+          </div>
+        </label>
+        <div id="stops-preview" class="chips"></div>
+        <div class="modal__actions">
+          <button type="button" class="ghost" id="route-modal-cancel">Cancelar</button>
+          <button type="submit" class="primary">Guardar ruta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
