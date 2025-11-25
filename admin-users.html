@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrar usuarios | Merca Maps</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="auth-body">
+  <main class="auth-card">
+    <div class="auth-card__header">
+      <h1>Usuarios</h1>
+      <p class="muted">Gestiona altas, ediciones y bajas (solo admin).</p>
+    </div>
+    <form id="user-form" class="stack">
+      <label class="field">
+        <span>Nombre</span>
+        <input type="text" id="user-name" placeholder="Nombre completo" required>
+      </label>
+      <label class="field">
+        <span>Correo</span>
+        <input type="email" id="user-email" placeholder="correo@dominio.com" required>
+      </label>
+      <label class="field">
+        <span>Contraseña</span>
+        <input type="password" id="user-password" placeholder="Mínimo 6 caracteres">
+        <small class="muted">Déjalo vacío al editar para no cambiarla.</small>
+      </label>
+      <label class="field">
+        <span>Rol</span>
+        <select id="user-role">
+          <option value="user">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </label>
+      <div class="auth-card__actions">
+        <a href="index.html" class="ghost">Volver al mapa</a>
+        <button type="submit" class="primary" id="user-submit">Crear usuario</button>
+      </div>
+    </form>
+    <p id="users-status" class="muted" role="status"></p>
+    <section id="users-list" class="stack"></section>
+  </main>
+
+  <script type="module" src="assets/js/admin-users.js"></script>
+</body>
+</html>

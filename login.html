@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingreso | Merca Maps</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="auth-body">
+  <main class="auth-card">
+    <div class="auth-card__header">
+      <div class="auth-brand">
+        <img src="assets/img/logo-mercamaps.png" alt="Departamento de Mercadotecnia" class="auth-logo">
+        <span class="pill pill--accent">Grupo Ascencio</span>
+      </div>
+      <div>
+        <h1>Inicia sesión</h1>
+        <p class="muted">Accede para administrar usuarios o volver al mapa.</p>
+      </div>
+    </div>
+    <form id="login-form" class="stack">
+      <label class="field">
+        <span>Correo</span>
+        <input type="email" id="email" placeholder="correo" required>
+      </label>
+      <label class="field">
+        <span>Contraseña</span>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </label>
+      <div class="auth-card__actions">
+        <button type="submit" class="primary">Entrar</button>
+      </div>
+    <!---  <p class="muted small">Admin demo: admin@local / admin123</p>-->
+    </form>
+    <p id="login-status" class="muted" role="status"></p>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const statusEl = document.getElementById('login-status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Validando...';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      try {
+        const res = await fetch('api/auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'No se pudo iniciar sesion');
+        }
+        statusEl.textContent = 'Listo, redirigiendo...';
+        setTimeout(() => { window.location.href = 'index.html'; }, 400);
+      } catch (err) {
+        statusEl.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

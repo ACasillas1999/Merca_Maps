@@ -22,6 +22,7 @@ function db()
     $conn->query("CREATE DATABASE IF NOT EXISTS `$database` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $conn->select_db($database);
 
+    ensure_users_table($conn);
     // Asegurar columna color para personalizar pins si ya existia la tabla sin romper si ya existe
     $hasColor = $conn->prepare('SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = "locations" AND COLUMN_NAME = "color"');
     $hasColor->bind_param('s', $database);
@@ -45,6 +46,35 @@ function db()
 
     $conn->query($createTable);
     return $conn;
+}
+
+function ensure_users_table(mysqli $conn): void
+{
+    $createUsers = "CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(120) NOT NULL,
+        email VARCHAR(190) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        role ENUM('admin','user') NOT NULL DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+    $conn->query($createUsers);
+
+    // Seed admin user if none exists
+    $check = $conn->prepare('SELECT id FROM users WHERE role = "admin" LIMIT 1');
+    $check->execute();
+    $check->store_result();
+    if ($check->num_rows === 0) {
+        $name = 'Administrador';
+        $email = 'admin@local';
+        $passwordHash = password_hash('admin123', PASSWORD_DEFAULT);
+        $role = 'admin';
+        $insert = $conn->prepare('INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)');
+        $insert->bind_param('ssss', $name, $email, $passwordHash, $role);
+        $insert->execute();
+        $insert->close();
+    }
+    $check->close();
 }
 
 function json_error($code, $message)

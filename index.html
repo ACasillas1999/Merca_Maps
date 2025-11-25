@@ -6,16 +6,18 @@
   <title>Mapa de Sucursales y Rutas | Grupo Ascencio</title>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
   <header class="hero">
     <div class="hero__copy">
-      <p class="eyebrow">Operaciones en vivo</p>
-      <h1>Mapa de sucursales, proveedores y rutas</h1>
-      <p class="lede">Marca y clasifica ubicaciones del Grupo Ascencio, asigna rutas a tus usuarios y visualiza el recorrido en un solo panel.</p>
+      <p class="eyebrow">Grupo Ascencio</p>
+      <h1>Mapa de sucursales, Clientes y Competencia</h1>
+      <p class="lede">Marca y clasifica ubicaciones del Grupo Ascencio.</p>
     </div>
     <div class="hero__actions">
+      <button id="open-users-admin" class="ghost" hidden>Usuarios (admin)</button>
+      <button id="logout-btn" class="ghost" hidden>Salir</button>
       <div class="metrics" id="metric-types"></div>
       <div class="metric">
         <p class="label">Ubicaciones</p>
@@ -25,7 +27,7 @@
   </header>
 
   <main class="layout layout--map-right">
-    <section class="panel panel-left">
+    <section class="panel panel-left" id="side-panel">
       <div class="panel__header">
         <div>
           <h2>Ubicaciones</h2>
@@ -42,12 +44,14 @@
     </section>
 
     <section class="map-panel">
+      <button type="button" class="drawer-toggle" id="menu-toggle">Menú</button>
+      <div id="drawer-overlay" class="drawer-overlay" hidden></div>
       <div class="nav-search-card is-collapsed">
         <div class="nav-search-head">
           <div>
             <strong>Ruta rapida</strong>
             <p class="muted">Busca una direccion y traza la ruta.</p>
-            <p class="muted nav-summary" id="nav-summary">Origen: -- · Destino: --</p>
+            <p class="muted nav-summary" id="nav-summary">Origen: -- -> Destino: --</p>
           </div>
           <button type="button" class="ghost small" id="nav-toggle">Expandir</button>
         </div>
@@ -164,6 +168,48 @@
 
   <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
-  <script src="main.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <div id="users-modal-backdrop" class="modal-backdrop" hidden>
+    <div class="modal modal--users">
+      <div class="modal__header">
+        <div>
+          <p class="eyebrow">Usuarios</p>
+          <h3>Gestionar cuentas</h3>
+        </div>
+        <button type="button" id="users-modal-close" class="ghost">Cerrar</button>
+      </div>
+      <p class="muted">Solo administradores pueden crear, editar o eliminar usuarios.</p>
+      <form id="user-form-inline" class="stack modal__form">
+        <label class="field">
+          <span>Nombre</span>
+          <input type="text" id="user-name" placeholder="Nombre completo" required>
+        </label>
+        <label class="field">
+          <span>Correo</span>
+          <input type="email" id="user-email" placeholder="correo@dominio.com" required>
+        </label>
+        <label class="field">
+          <span>Contrase?a</span>
+          <input type="password" id="user-password" placeholder="Minimo 6 caracteres">
+          <small class="muted">D?jalo vac?o al editar para no cambiarla.</small>
+        </label>
+        <label class="field">
+          <span>Rol</span>
+          <select id="user-role">
+            <option value="user">Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </label>
+        <div class="modal__actions">
+          <button type="button" class="ghost" id="users-modal-cancel">Cancelar</button>
+          <button type="submit" class="primary" id="user-submit">Crear usuario</button>
+        </div>
+      </form>
+      <p id="users-status" class="muted" role="status"></p>
+      <section id="users-list" class="stack users-list"></section>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -149,6 +149,32 @@ a {
   height: 100%;
 }
 
+.drawer-toggle {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  display: none;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 20, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9;
+}
+
+.drawer-overlay[hidden] {
+  display: none !important;
+}
+
 #map {
   height: 100%;
   min-height: 640px;
@@ -642,6 +668,47 @@ button:active {
 @media (max-width: 1080px) {
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+  }
+
+  .map-panel {
+    min-height: calc(100vh - 140px);
+  }
+
+  #map {
+    position: relative;
+    min-height: calc(100vh - 180px);
+  }
+
+  .panel-left {
+    position: fixed;
+    inset: 0 0 0 0;
+    max-width: 90vw;
+    background: rgba(15, 23, 42, 0.96);
+    border-radius: 0 12px 12px 0;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    z-index: 11;
+    overflow-y: auto;
+  }
+
+  body.drawer-open .panel-left {
+    transform: translateX(0);
+  }
+
+  .drawer-toggle {
+    display: inline-flex;
+  }
+
+  .panel__header {
+    position: sticky;
+    top: 0;
+    background: rgba(15, 23, 42, 0.96);
+    padding-top: 16px;
+    z-index: 1;
   }
   .map-overlay {
     position: static;
@@ -691,6 +758,14 @@ button:active {
   box-shadow: var(--shadow);
 }
 
+.modal--users {
+  width: min(900px, 96vw);
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+  background: radial-gradient(circle at 20% 10%, rgba(34, 211, 238, 0.08), transparent 35%), #0f172a;
+}
+
 .modal__header {
   display: flex;
   align-items: center;
@@ -709,7 +784,160 @@ button:active {
   gap: 10px;
 }
 
-
 .modal-backdrop[hidden] {
   display: none !important;
+}
+
+/* Auth / Admin pages */
+.modal--users .modal__header h3 {
+  margin: 0;
+}
+
+.modal--users .modal__header p.eyebrow {
+  color: var(--accent);
+}
+
+.modal--users .field input,
+.modal--users .field select {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal--users .modal__actions {
+  justify-content: flex-end;
+}
+
+.users-list {
+  max-height: 300px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.users-list .table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-list th,
+.users-list td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.users-list thead {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(6px);
+}
+
+.users-list .table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.users-list tr:hover {
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.auth-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: inherit;
+  color: var(--text);
+}
+
+.auth-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+  max-width: 760px;
+  width: 100%;
+  display: grid;
+  gap: 20px;
+}
+
+.auth-card__header h1 {
+  margin: 0 0 4px;
+}
+
+.auth-card__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.auth-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.auth-brand {
+  display: grid;
+  gap: 6px;
+  align-items: center;
+  justify-items: center;
+}
+
+.auth-logo {
+  width: min(42vw, 360px);
+  height: auto;
+  border-radius: 14px;
+  border: none;
+  box-shadow: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  width: fit-content;
+}
+
+.pill--accent {
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.16));
+  border-color: rgba(34, 211, 238, 0.4);
+  color: var(--text);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table thead {
+  background: #38bdf8;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.small {
+  font-size: 0.9rem;
 }
