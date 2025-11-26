@@ -3,12 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const list = document.getElementById('users-list');
   const statusEl = document.getElementById('users-status');
   const submitBtn = document.getElementById('user-submit');
+  const formControls = form ? Array.from(form.querySelectorAll('input, select, button')) : [];
   let editingId = null;
 
-  loadUsers();
+  // Deshabilitar hasta confirmar que el usuario es admin
+  setFormEnabled(false);
+  ensureAdmin().then((isAdmin) => {
+    if (isAdmin) {
+      setFormEnabled(true);
+      loadUsers();
+    } else {
+      if (statusEl) statusEl.innerHTML = 'Solo administradores pueden gestionar usuarios. <a href="login.html">Iniciar sesion</a>';
+      if (list) list.innerHTML = '';
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (submitBtn.hidden) return;
     const payload = {
       name: document.getElementById('user-name').value.trim(),
       email: document.getElementById('user-email').value.trim(),
@@ -134,5 +146,32 @@ document.addEventListener('DOMContentLoaded', () => {
       throw new Error(data.error || 'Error en la operacion');
     }
     return data;
+  }
+
+  async function ensureAdmin() {
+    try {
+      statusEl.textContent = 'Verificando acceso...';
+      const res = await fetch('api/auth.php');
+      const data = await res.json();
+      if (!res.ok || data?.user?.role !== 'admin') {
+        throw new Error(data.error || 'No autorizado');
+      }
+      statusEl.textContent = '';
+      return true;
+    } catch (err) {
+      statusEl.textContent = err.message || 'No autorizado';
+      return false;
+    }
+  }
+
+  function setFormEnabled(enabled) {
+    formControls.forEach((el) => {
+      if (el.id === 'user-submit') {
+        el.hidden = !enabled;
+        el.disabled = !enabled;
+      } else {
+        el.disabled = !enabled;
+      }
+    });
   }
 });

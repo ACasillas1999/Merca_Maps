@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function db()
 {
     static $conn;
@@ -10,6 +10,9 @@ function db()
     $user = 'merca_maps';
     $pass = 'Nomeacuerd0';
     $database = 'merca_maps';
+
+    // Evitar que los warnings de MySQL rompan las respuestas JSON
+    mysqli_report(MYSQLI_REPORT_OFF);
 
     $conn = new mysqli($host, $user, $pass);
     if ($conn->connect_errno) {
@@ -59,6 +62,22 @@ function ensure_users_table(mysqli $conn): void
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
     $conn->query($createUsers);
+
+    // Normalizar tabla en caso de instalaciones previas sin AUTO_INCREMENT/PRIMARY KEY/UNIQUE
+    $colInfo = $conn->prepare('SELECT COLUMN_KEY, EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "users" AND COLUMN_NAME = "id"');
+    $colInfo->execute();
+    $colInfo->bind_result($colKey, $extra);
+    $colInfo->fetch();
+    $colInfo->close();
+    if ($colKey !== 'PRI' || stripos((string)$extra, 'auto_increment') === false) {
+        $conn->query('ALTER TABLE users MODIFY id INT AUTO_INCREMENT PRIMARY KEY');
+    }
+
+    $emailIndex = $conn->query("SELECT COUNT(1) AS cnt FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND INDEX_NAME = 'email'");
+    $idxRow = $emailIndex ? $emailIndex->fetch_assoc() : ['cnt' => 0];
+    if ((int)$idxRow['cnt'] === 0) {
+        $conn->query('ALTER TABLE users ADD UNIQUE KEY email (email)');
+    }
 
     // Seed admin user if none exists
     $check = $conn->prepare('SELECT id FROM users WHERE role = "admin" LIMIT 1');

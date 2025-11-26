@@ -52,7 +52,15 @@ async function ensureAuth() {
     const user = await fetchCurrentUser();
     state.currentUser = user;
     const adminBtn = document.getElementById('open-users-admin');
-    if (adminBtn && user.role === 'admin') adminBtn.hidden = false;
+    if (adminBtn) {
+      const isAdmin = user.role === 'admin';
+      if (isAdmin) {
+        adminBtn.hidden = false;
+      } else {
+        // Quitar completamente el acceso visual/funcional si no es admin
+        adminBtn.remove();
+      }
+    }
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) logoutBtn.hidden = false;
   } catch (err) {
