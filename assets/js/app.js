@@ -421,10 +421,6 @@ function setupGeocoder() {
 }
 
 async function routeFromCurrentPosition() {
-  if (!state.navDestination) {
-    alert('Primero selecciona una direccion destino.');
-    return;
-  }
   if (!navigator.geolocation) {
     alert('Tu navegador no permite geolocalizacion.');
     return;
@@ -435,6 +431,11 @@ async function routeFromCurrentPosition() {
     async (pos) => {
       const origin = { lng: pos.coords.longitude, lat: pos.coords.latitude };
       setOriginFromCoords(origin, 'Mi ubicacion');
+      // Si aún no hay destino, igual pedimos permiso y dejamos la ubicación lista
+      if (!state.navDestination) {
+        if (status) status.textContent = 'Ubicacion lista. Selecciona un destino en el mapa o buscador.';
+        return;
+      }
       try {
         reverseGeocode(origin).then((name) => { if (name) setOriginFromCoords(origin, name); }).catch(() => {});
         if (status) status.textContent = 'Calculando ruta...';
