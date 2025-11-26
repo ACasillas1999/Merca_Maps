@@ -48,6 +48,17 @@ function db()
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
     $conn->query($createTable);
+
+    // Normalizar tabla locations por si quedo sin AUTO_INCREMENT/PRIMARY KEY en instalaciones previas
+    $locIdInfo = $conn->prepare('SELECT COLUMN_KEY, EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "locations" AND COLUMN_NAME = "id"');
+    $locIdInfo->execute();
+    $locIdInfo->bind_result($colKey, $extra);
+    $locIdInfo->fetch();
+    $locIdInfo->close();
+    if ($colKey !== 'PRI' || stripos((string)$extra, 'auto_increment') === false) {
+        $conn->query('ALTER TABLE locations MODIFY id INT AUTO_INCREMENT PRIMARY KEY');
+    }
+
     return $conn;
 }
 
