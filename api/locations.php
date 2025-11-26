@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 header('Content-Type: application/json');
-require __DIR__ . '/db.php';
+require 'db.php';
 
 $conn = db();
 $method = $_SERVER['REQUEST_METHOD'];

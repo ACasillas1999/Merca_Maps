@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 session_start();
-require __DIR__ . '/db.php';
+require 'db.php';
 
 $conn = db();
 $method = $_SERVER['REQUEST_METHOD'];
