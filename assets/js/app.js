@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLocations();
     renderAll();
   })();
+  // En iOS, asegurar que el primer toque en la página pueda detonar el prompt de ubicacion
+  document.addEventListener('touchstart', preflightGeolocation, { passive: true });
 });
 
 async function ensureAuth() {
