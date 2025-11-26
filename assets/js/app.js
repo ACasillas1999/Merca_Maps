@@ -34,6 +34,7 @@ import {
 } from './ui.js';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
+let geoPromptedOnce = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   (async () => {
@@ -134,6 +135,8 @@ function bindEvents() {
   });
 
   btnRouteFromCurrent?.addEventListener('click', routeFromCurrentPosition);
+  // En iOS a veces el prompt solo se dispara en el primer gesto; adelantamos una llamada vacia
+  btnRouteFromCurrent?.addEventListener('touchstart', preflightGeolocation, { passive: true });
   btnRouteFromSearch?.addEventListener('click', routeFromCurrentPosition);
   btnOpenGmaps?.addEventListener('click', openInGoogleMaps);
   btnClearNav?.addEventListener('click', clearNavRoute);
@@ -450,10 +453,24 @@ async function routeFromCurrentPosition() {
     },
     (err) => {
       console.error(err);
-      if (status) status.textContent = 'No se pudo obtener tu ubicacion. Habilita permisos de GPS.';
-      alert('No se pudo obtener tu ubicacion. Habilita permisos de GPS.');
+      const msg =
+        err.code === 1
+          ? 'Permiso de ubicacion denegado. En iOS ve a Ajustes > Safari > Localizacion y permite "Al usar la app".'
+          : 'No se pudo obtener tu ubicacion. Habilita permisos de GPS.';
+      if (status) status.textContent = msg;
+      alert(msg);
     },
     { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function preflightGeolocation() {
+  if (geoPromptedOnce || !navigator.geolocation) return;
+  geoPromptedOnce = true;
+  navigator.geolocation.getCurrentPosition(
+    () => {},
+    () => {},
+    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
   );
 }
 
