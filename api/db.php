@@ -6,10 +6,10 @@ function db()
         return $conn;
     }
 
-    $host = 'localhost';
-    $user = 'root';
-    $pass = '';
-    $database = 'marca_maps';
+    $host = '18.211.75.118';
+    $user = 'merca_maps';
+    $pass = 'Nomeacuerd0';
+    $database = 'merca_maps';
 
     $conn = new mysqli($host, $user, $pass);
     if ($conn->connect_errno) {
